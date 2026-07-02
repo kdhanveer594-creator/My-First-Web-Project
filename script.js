@@ -1,80 +1,190 @@
-let userScore=0;
-let compScore=0;
+let userScore = 0;
+let compScore = 0;
+let gameOver = false;
+let gameStarted = false;
+
+const winSound = new Audio("images/game win.mp3");
+const drawSound = new Audio("images/game draw.mp3");
+const loseSound = new Audio("images/lose game.mp3");
+const gameOverSound = new Audio("images/game over.mp3");
+const letsGoSound = new Audio("images/lets go.mp3");
+const sound = new Audio("images/sound.mp3");
 
 const choices = document.querySelectorAll(".choice");
- //show message lose or win
- const msg = document.querySelector(".msg");
+const msg = document.querySelector(".msg");
+const resetBtn = document.querySelector("#reset");
+const playBtn = document.querySelector(".play-btn");
+const countdown = document.querySelector("#countdown");
 
- const userScorePara=document.querySelector("#user-score");
-   const compScorePara=document.querySelector("#comp-score");
+const userChoicePara = document.querySelector("#user-choice");
+const compChoicePara = document.querySelector("#comp-choice");
+const history = document.querySelector("#history");
 
-// 1. कंप्यूटर के लिए रैंडम चॉइस बनाने वाला फंक्शन (स्पेलिंग एकदम सही)
+const userScorePara = document.querySelector("#user-score");
+const compScorePara = document.querySelector("#comp-score");
+
+// 1. computer ki randome choice ke liye function//
 const genCompChoice = () => {
     const options = ["rock", "paper", "scissor"];
-    const randIdx = Math.floor(Math.random()*3);
+    const randIdx = Math.floor(Math.random() * 3);
     return options[randIdx];
 };
 
-// 2. ड्रॉ होने पर चलने वाला फंक्शन
+// 2. game draw bala function//
 const drawGame = () => {
-    console.log("Game was draw.");
-    msg.innerText="Game was draw, play again.";
-    msg.style.backgroundColor="black";
-};
 
-// 3. जीतने वाले को स्क्रीन/कंसोल पर दिखाने वाला फंक्शन (छोटे 'w' के साथ)
+    msg.innerText = "Game draw..!";
+    drawSound.play();
+    drawSound.currentTime = 0;
+    msg.style.backgroundColor = "skyblue";
+};
+//match history function//
+const addHistory = (userChoice, compChoice, result) => {
+    const historyItems = document.createElement("p");
+    historyItems.innerText = `You: ${userChoice} | Computer: ${compChoice} =>${result}`
+    history.append(historyItems);
+};
+// 3. user or computer ki choice ke according user score and winner message//
 const showWinner = (userWin) => {
     if (userWin) {
-        userScore++; 
-        userScorePara.innerText=userScore;
-        console.log("You Win!");
-        msg.innerText= "You win!";
-        msg.style.backgroundColor="green";
+        userScore++;
+        userScorePara.innerText = userScore;
+        if (userScore === 5) {
+            gameOver = true;
+            msg.innerText = "🎉 You are Champion!";
+            gameOverSound.play();
+        } else {
+            msg.innerText = "You win..!";
+            winSound.play();
+            winSound.currentTime = 0;
+            msg.style.backgroundColor = "green";
+        }
     } else {
         compScore++;
-        compScorePara.innerText=compScore;
-        console.log("You Lose!");
-        msg.innerText="You lose!";
-        msg.style.backgroundColor="red";
+        compScorePara.innerText = compScore;
+        if (compScore === 5) {
+            gameOver = true;
+            msg.innerText = "💻 Computer is Champion!";
+            gameOverSound.play();
+        } else {
+            msg.innerText = "You lose..!";
+            loseSound.play();
+            loseSound.currentTime = 0;
+            msg.style.backgroundColor = "red";
+        }
     }
 };
 
-// 4. गेम का मेन लॉजिक फंक्शन
+// 4. user choice function//
 const playGame = (userChoice) => {
-    console.log("User Choice =", userChoice);
-    
-    // कंप्यूटर की चॉइस फंक्शन के अंदर ही रहेगी
-    const comChoice = genCompChoice();
-    console.log("Comp Choice =", comChoice);
+    if (!gameStarted) {
+        msg.innerText = "▶ Play again"
+        return;
+    }
+    if (gameOver) {
+        return;
+    }
 
-    // कंडीशन 1: मैच ड्रॉ होने पर
+
+    // comp choice whithin function
+    const comChoice = genCompChoice();
+    userChoicePara.innerText = userChoice;
+    compChoicePara.innerText = comChoice;
+    // condition draw hone par//
     if (userChoice === comChoice) {
         drawGame();
+        addHistory(userChoice, comChoice, "draw!");
     } else {
-        // कंडीशन 2: मैच का फैसला होने पर
+        // match ka conclusion par//
         let userWin = true;
 
         if (userChoice === "rock") {
-            // कंप्यूटर के पास paper या scissor ही हो सकता है (क्योंकि ड्रॉ पहले ही चेक हो गया)
             userWin = comChoice === "paper" ? false : true;
         } else if (userChoice === "paper") {
-            // कंप्यूटर के पास rock या scissor हो सकता है
+
             userWin = comChoice === "scissor" ? false : true;
         } else {
-            // यूजर के पास scissor है, तो कंप्यूटर के पास rock या paper हो सकता है
-            userWin = comChoice === "rock" ? false : true;
-        }
 
-        // सही फंक्शन नेम (छोटे 'w' वाला showwinner) कॉल किया
+            userWin = comChoice === "rock" ? false : true;
+
+        }
         showWinner(userWin);
-        
+        if (userWin) {
+            addHistory(userChoice, comChoice, "win!");
+        } else {
+            addHistory(userChoice, comChoice, "lose!");
+        }
     }
 };
 
-// 5. बटन क्लिक इवेंट का लूप
+// button click hone ka sara loop
 choices.forEach((choice) => {
     choice.addEventListener("click", () => {
         const userChoice = choice.getAttribute("id");
         playGame(userChoice);
+
     });
 });
+
+resetBtn.addEventListener("click", () => {
+    userScore = 0;
+    compScore = 0;
+    userScorePara.innerText = userScore;
+    compScorePara.innerText = compScore;
+    msg.innerText = "▶ Play again..!";
+    msg.style.backgroundColor = "#657807";
+
+    userChoicePara.innerText = "You : -";
+
+    compChoicePara.innerText = "Computer : -";
+    history.innerHTML = "";
+    gameOver = false;
+    gameStarted = false;
+    playBtn.disabled = false;
+});
+playBtn.addEventListener("click", () => {
+    if(gameOver){
+        msg.innerText = "🔄 Reset Game First!";
+        return;
+    }
+    let count = 3;
+    countdown.style.display = "block";
+    countdown.innerText = count;
+    sound.play();
+    countdown.classList.remove("animate-count");
+
+    setTimeout(() => {
+        countdown.classList.add("animate-count");
+    }, 10);
+    const timer = setInterval(() => {
+        count--;
+        if (count > 0) {
+            countdown.innerText = count;
+            sound.play();
+            countdown.classList.remove("animate-count");
+            void countdown.offsetWidth;
+            countdown.classList.add("animate-count");
+        } else {
+            countdown.innerText = "Go!";
+            letsGoSound.play();
+            countdown.classList.remove("animate-count");
+            void countdown.offsetWidth;
+
+
+            countdown.classList.add("animate-count");
+            gameStarted = true;
+
+
+            setTimeout(() => {
+                countdown.style.display = "none";
+            }, 1200);
+            clearInterval(timer);
+        }
+    }, 1200);
+});
+
+// dark light mode
+const theameToggle = document.querySelector("#theme-toggle");
+theameToggle.addEventListener("click",() =>{
+    document.body.classList.toggle("dark-mode");
+})
