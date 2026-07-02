@@ -3,12 +3,12 @@ let compScore = 0;
 let gameOver = false;
 let gameStarted = false;
 
-const winSound = new Audio("images/game win.mp3");
-const drawSound = new Audio("images/game draw.mp3");
-const loseSound = new Audio("images/lose game.mp3");
-const gameOverSound = new Audio("images/game over.mp3");
-const letsGoSound = new Audio("images/lets go.mp3");
-const sound = new Audio("images/sound.mp3");
+const winSound = new Audio("game win.mp3");
+const drawSound = new Audio("game draw.mp3");
+const loseSound = new Audio("lose game.mp3");
+const gameOverSound = new Audio("game over.mp3");
+const letsGoSound = new Audio("lets go.mp3");
+const sound = new Audio("sound.mp3");
 
 const choices = document.querySelectorAll(".choice");
 const msg = document.querySelector(".msg");
